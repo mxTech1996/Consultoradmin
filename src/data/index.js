@@ -45,7 +45,7 @@ export const dataSite = {
   name: 'Consultoradmin',
   url: 'https://es.wiktionary.org/wiki/hol',
   telephone: '5513358634',
-  email: 'admcaminos@emailsecure.lat',
+  email: 'admversalles@emailsecure.lat',
   address:
     'CAMPOS ELISEOS 400, PISO 3, DEPTO 302, POLANCO V SECCION, MIGUEL HIDALGO, CIUDAD DE MEXICO, C.P. 11560',
   description:
