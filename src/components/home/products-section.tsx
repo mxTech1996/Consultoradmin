@@ -8,10 +8,7 @@ import { dataSite } from "@/lib/data";
 import { productSpanish, useLanguage } from "@/lib/language";
 import { formatProductPrice } from "@/lib/pricing";
 
-// All 8 legacy products are the same kind of thing (digital legal
-// kits/toolkits/reports/audits, no physical goods) — see src/lib/pricing.ts
-// header comment — so they render together here as a single group, same
-// as the legacy ProductGrid.js "Our Digital Products" section.
+// Legal products and services render together as one catalog group.
 export const products = dataSite.products;
 
 // Composition: a "case file" card grid — a photo in a brief-corner frame,

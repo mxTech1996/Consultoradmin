@@ -15,6 +15,11 @@ import { dataSite } from "../../lib/data";
 import { productSpanish, useLanguage } from "../../lib/language";
 
 const pageName = "Consultoradmin";
+// Preserves the legacy discount behaviour: both real codes apply the same
+// 10% discount (see Auxida/SAEMLE src/components/organisms/CartSection.js:
+// totalDiscount: 10).
+const validDiscountCode = ["ADMIN10", "ADMIN20"];
+const DISCOUNT_PERCENT = 10;
 
 const CartSectionComponent = () => {
   const {
@@ -29,10 +34,15 @@ const CartSectionComponent = () => {
   const currency = getCurrencyForLanguage(language);
   const t = (english, spanish) => (language === "es" ? spanish : english);
   const [step, setStep] = useState("cart"); // cart | payment
+  const [isValidDiscount, setIsValidDiscount] = useState(false);
+  const [discountCode, setDiscountCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [paymentError, setPaymentError] = useState("");
   const [transactionId, setTransactionId] = useState("");
   const [cardDate, setCardDate] = useState("");
+  const [isPaymentLinkFormOpen, setIsPaymentLinkFormOpen] = useState(false);
+  const [isRequestingPaymentLink, setIsRequestingPaymentLink] = useState(false);
+  const [paymentLinkRequestStatus, setPaymentLinkRequestStatus] = useState("");
   const router = useRouter();
 
   const createRandomNumberTransaction = () => {
@@ -92,7 +102,7 @@ const CartSectionComponent = () => {
     0,
   );
   const cartTotalMXN = convertCurrencyAmount(cartTotalUsd, "USD", "MXN");
-  const totalMXN = cartTotalMXN;
+  const totalMXN = isValidDiscount ? 10 : cartTotalMXN;
   const total = convertCurrencyAmount(totalMXN, "MXN", currency);
   const formatCurrency = (amount, selectedCurrency = currency) =>
     formatCurrencyAmount(amount, selectedCurrency, language);
@@ -182,6 +192,10 @@ const CartSectionComponent = () => {
       setIsLoading(false);
     }
   };
+  const onChangeDiscount = (value) => {
+    setDiscountCode(value);
+    setIsValidDiscount(validDiscountCode.includes(value.trim().toUpperCase()));
+  };
   const onSubmitPayment = async (event) => {
     event.preventDefault();
     setPaymentError("");
@@ -194,6 +208,74 @@ const CartSectionComponent = () => {
       setTransactionId(result.data.transactionId);
     } else {
       setPaymentError(result.message);
+    }
+  };
+  const onRequestPaymentLink = async (event) => {
+    event.preventDefault();
+    setPaymentLinkRequestStatus("");
+    setIsRequestingPaymentLink(true);
+
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+    const name = String(formData.get("requestName") || "").trim();
+    const email = String(formData.get("requestEmail") || "").trim();
+    const services = products.map((product) => {
+      const quantity = getQuantityProductCart(product.id);
+      const localizedProduct =
+        language === "es" ? productSpanish[product.id] : undefined;
+
+      return {
+        name: `${localizedProduct?.name ?? product.name} x${quantity}`,
+        price: Number(
+          convertCurrencyAmount(
+            Number(product.price) * quantity,
+            "USD",
+            "MXN",
+          ).toFixed(2),
+        ),
+      };
+    });
+
+    try {
+      const response = await ApiTransaction.sendEmail({
+        email_for_admin_data: {
+          client: pageName,
+          email,
+          name,
+          amount: Number(totalMXN.toFixed(2)),
+          phone_number: "",
+          services,
+          order_number: t("Payment link request", "Solicitud de link de pago"),
+          sender: dataSite.email,
+        },
+        email_for_client_data: { email },
+      });
+
+      if (
+        !response ||
+        response?.isAxiosError ||
+        response?.status === "error" ||
+        response?.content?.status === "error"
+      ) {
+        throw new Error("Unable to send payment link request");
+      }
+
+      setPaymentLinkRequestStatus(
+        t(
+          `Request sent to ${dataSite.email}.`,
+          `Solicitud enviada a ${dataSite.email}.`,
+        ),
+      );
+      form.reset();
+    } catch {
+      setPaymentLinkRequestStatus(
+        t(
+          "We couldn't send your request. Please try again.",
+          "No pudimos enviar tu solicitud. Inténtalo de nuevo.",
+        ),
+      );
+    } finally {
+      setIsRequestingPaymentLink(false);
     }
   };
   return (
@@ -330,14 +412,85 @@ const CartSectionComponent = () => {
                       {formatCurrency(total)}
                     </span>
                   </p>
-                  <button
-                    type="button"
-                    onClick={() => setStep("payment")}
-                    className="min-h-12 [width:100%] bg-primary px-6 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 sm:[width:auto]"
-                  >
-                    {t("Go to pay", "Ir a pagar")}
-                  </button>
+                  <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsPaymentLinkFormOpen((open) => !open);
+                        setPaymentLinkRequestStatus("");
+                      }}
+                      className="min-h-12 w-full border border-accent px-6 text-sm font-semibold text-accent transition-colors hover:bg-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 sm:w-auto"
+                    >
+                      {t("Get payment link", "Obtener link de pago")}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setStep("payment")}
+                      className="min-h-12 [width:100%] bg-primary px-6 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 sm:[width:auto]"
+                    >
+                      {t("Go to pay", "Ir a pagar")}
+                    </button>
+                  </div>
                 </div>
+                {isPaymentLinkFormOpen && (
+                  <form
+                    onSubmit={onRequestPaymentLink}
+                    className="grid gap-5 border-t border-border px-6 py-6 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] sm:items-end"
+                  >
+                    <div className="sm:col-span-3">
+                      <h2 className="font-display text-xl text-foreground">
+                        {t("Request a payment link", "Solicitar un link de pago")}
+                      </h2>
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        {t(
+                          "We'll send your request and cart summary to",
+                          "Enviaremos tu solicitud y el resumen del carrito a",
+                        )}{" "}
+                        <span className="font-medium text-foreground">
+                          {dataSite.email}
+                        </span>
+                        .
+                      </p>
+                    </div>
+                    <label className="block text-sm font-medium text-foreground">
+                      {t("Name", "Nombre")}
+                      <input
+                        name="requestName"
+                        autoComplete="name"
+                        minLength={2}
+                        required
+                        className="mt-2 min-h-11 w-full border border-border bg-background px-3 text-sm outline-none focus:border-accent focus:ring-1 focus:ring-accent"
+                      />
+                    </label>
+                    <label className="block text-sm font-medium text-foreground">
+                      {t("Email", "Correo electrónico")}
+                      <input
+                        name="requestEmail"
+                        type="email"
+                        autoComplete="email"
+                        required
+                        className="mt-2 min-h-11 w-full border border-border bg-background px-3 text-sm outline-none focus:border-accent focus:ring-1 focus:ring-accent"
+                      />
+                    </label>
+                    <button
+                      type="submit"
+                      disabled={isRequestingPaymentLink}
+                      className="min-h-11 w-full bg-accent px-5 text-sm font-semibold text-accent-foreground transition-colors hover:bg-accent/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+                    >
+                      {isRequestingPaymentLink
+                        ? t("Sending...", "Enviando...")
+                        : t("Request", "Solicitar")}
+                    </button>
+                    {paymentLinkRequestStatus && (
+                      <p
+                        role="status"
+                        className="text-sm text-muted-foreground sm:col-span-3"
+                      >
+                        {paymentLinkRequestStatus}
+                      </p>
+                    )}
+                  </form>
+                )}
               </div>
             )}
           </section>
@@ -600,13 +753,47 @@ const CartSectionComponent = () => {
                 </span>
               </div>
 
-              <dl className="mt-8 space-y-3 border-t border-primary-foreground/20 pt-5 text-sm">
+              <div className="mt-8 border-t border-primary-foreground/20 pt-5">
+                <label
+                  className="block text-xs font-medium text-primary-foreground/75"
+                  htmlFor="discount-code"
+                >
+                  {t("Discount code", "Código de descuento")}
+                </label>
+                <input
+                  id="discount-code"
+                  value={discountCode}
+                  onChange={(event) => onChangeDiscount(event.target.value)}
+                  aria-describedby="discount-status"
+                  className="mt-2 min-h-11 w-full border border-primary-foreground/30 bg-background px-3 text-sm uppercase text-foreground outline-none focus:border-background focus:ring-2 focus:ring-primary-foreground/40"
+                  placeholder={t("Enter code", "Ingresa el código")}
+                />
+                <p
+                  id="discount-status"
+                  aria-live="polite"
+                  className="mt-2 min-h-4 text-xs text-primary-foreground/75"
+                >
+                  {isValidDiscount
+                    ? t("Discount code applied", "Código de descuento aplicado")
+                    : discountCode
+                      ? t("Code not recognized", "Código no reconocido")
+                      : ""}
+                </p>
+              </div>
+
+              <dl className="mt-4 space-y-3 border-t border-primary-foreground/20 pt-5 text-sm">
                 <div className="flex justify-between gap-4 text-primary-foreground/75">
                   <dt>{t("Subtotal", "Subtotal")}</dt>
                   <dd>
                     {formatCurrency(convertCurrencyAmount(cartTotalUsd, "USD", currency))}
                   </dd>
                 </div>
+                {isValidDiscount && (
+                  <div className="flex justify-between gap-4 text-accent">
+                    <dt>{t("Discount applied", "Descuento aplicado")}</dt>
+                    <dd>{formatCurrency(total)}</dd>
+                  </div>
+                )}
                 <div className="flex items-end justify-between gap-4 border-t border-primary-foreground/20 pt-5">
                   <dt className="font-mono text-xs font-semibold uppercase tracking-[0.12em] text-primary-foreground/75">
                     {t("Total", "Total")}

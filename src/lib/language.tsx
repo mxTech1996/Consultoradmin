@@ -52,9 +52,8 @@ const translations = {
     servicesEyebrow: "We provide a comprehensive range of legal services.",
     servicesHeading: "Our Legal & Consulting Services",
 
-    // Products (dataSite.products, 8 real digital products — single group,
-    // matching the legacy ProductGrid.js "Our Digital Products" framing)
-    productsHeading: "Our Digital Products",
+    // Products (dataSite.products, a mix of legal products and services)
+    productsHeading: "Our Legal Products & Services",
     productsParagraph: "Essential legal solutions, available instantly.",
     addToCart: "Add to Cart",
     removeFromCart: "Remove from Cart",
@@ -69,7 +68,8 @@ const translations = {
 
     // Testimonials (dataSite.references, 5 real items)
     testimonialsEyebrow: "Testimonials",
-    testimonialsHeading: "Don't take our word for it! Hear it from our clients.",
+    testimonialsHeading:
+      "Don't take our word for it! Hear it from our clients.",
 
     // Contact section (home) + contact page
     contactTitle: "Request a confidential consultation.",
@@ -91,9 +91,11 @@ const translations = {
     formEmailError: "Please enter a valid email address.",
     formMessageError: "Message must be at least 10 characters.",
     toastSuccessTitle: "Message sent!",
-    toastSuccessDescription: "Thank you for reaching out. We'll be in touch soon.",
+    toastSuccessDescription:
+      "Thank you for reaching out. We'll be in touch soon.",
     toastErrorTitle: "Something went wrong.",
-    toastErrorDescription: "There was a problem with your request. Please try again.",
+    toastErrorDescription:
+      "There was a problem with your request. Please try again.",
     phoneLabel: "Phone",
     emailLabel: "Email",
     addressLabel: "Address",
@@ -148,8 +150,9 @@ const translations = {
     servicesHeading: "Nuestros Servicios Legales y de Consultoría",
 
     // Products
-    productsHeading: "Nuestros Productos Digitales",
-    productsParagraph: "Soluciones legales esenciales, disponibles al instante.",
+    productsHeading: "Nuestros Productos y Servicios Legales",
+    productsParagraph:
+      "Soluciones legales esenciales, disponibles al instante.",
     addToCart: "Agregar al carrito",
     removeFromCart: "Quitar del carrito",
     fileLabel: "Expediente",
@@ -161,7 +164,8 @@ const translations = {
 
     // Testimonials
     testimonialsEyebrow: "Testimonios",
-    testimonialsHeading: "¡No solo confíes en nuestra palabra! Escúchalo de nuestros clientes.",
+    testimonialsHeading:
+      "¡No solo confíes en nuestra palabra! Escúchalo de nuestros clientes.",
 
     // Contact
     contactTitle: "Solicita una consulta confidencial.",
@@ -183,9 +187,11 @@ const translations = {
     formEmailError: "Ingresa un correo electrónico válido.",
     formMessageError: "El mensaje debe tener al menos 10 caracteres.",
     toastSuccessTitle: "¡Mensaje enviado!",
-    toastSuccessDescription: "Gracias por contactarnos. Te responderemos pronto.",
+    toastSuccessDescription:
+      "Gracias por contactarnos. Te responderemos pronto.",
     toastErrorTitle: "Algo salió mal.",
-    toastErrorDescription: "Hubo un problema con tu solicitud. Inténtalo de nuevo.",
+    toastErrorDescription:
+      "Hubo un problema con tu solicitud. Inténtalo de nuevo.",
     phoneLabel: "Teléfono",
     emailLabel: "Correo",
     addressLabel: "Dirección",
@@ -237,10 +243,79 @@ export function useLanguage() {
   return context;
 }
 
-// Real product names/descriptions translated to Spanish (same facts as the
-// English source in src/lib/data.ts, not reworded content). Keyed by the
-// real legacy numeric id.
+// Product names and descriptions translated to Spanish, keyed by product id.
 export const productSpanish: Record<
+  number,
+  { name: string; description: string }
+> = {
+  624187286: {
+    name: "Programa de Prevención de Riesgos Legales",
+    description:
+      "Programa especializado en identificar, evaluar y prevenir riesgos legales para personas y empresas. Incluye un análisis de posibles contingencias legales, recomendaciones preventivas y estrategias para minimizar disputas, proteger intereses y fortalecer la certeza jurídica.",
+  },
+  890301437: {
+    name: "Seguimiento de Asuntos Corporativos",
+    description:
+      "Los abogados de esta organización dan seguimiento diario y oportuno a cada asunto mediante las plataformas o sistemas adecuados para cada caso.",
+  },
+  2088610853: {
+    name: "Kit Legal para Startups",
+    description:
+      "El Kit Legal para Startups es un recurso integral diseñado específicamente para startups y emprendedores en etapa inicial. Proporciona documentos legales esenciales, plantillas y orientación para ayudar a los fundadores a lanzar y operar su negocio de forma legal, eficiente y con confianza. Ayuda a reducir riesgos legales, aclarar relaciones comerciales y establecer una base legal sólida desde el primer día.",
+  },
+  91784385: {
+    name: "Paquete de Constitución de Empresa",
+    description:
+      "Incluye el registro de la entidad, asesoría sobre la estructura legal y documentos corporativos fundamentales.",
+  },
+  1748789990: {
+    name: "Paquete de Plantillas de Contratos",
+    description:
+      "El Paquete de Plantillas de Contratos es una colección seleccionada de acuerdos legales redactados profesionalmente para freelancers, emprendedores, pequeñas empresas y consultores.",
+  },
+  51985886: {
+    name: "Kit de Auditoría de Cumplimiento",
+    description:
+      "El Kit de Auditoría de Cumplimiento es un conjunto integral de herramientas para ayudar a las empresas a evaluar, monitorear y mantener el cumplimiento de las leyes, regulaciones y políticas internas aplicables. Es ideal para empresas de cualquier tamaño y ofrece herramientas paso a paso para realizar auditorías internas, identificar áreas de riesgo e implementar acciones correctivas, asegurando la integridad operativa y reduciendo la exposición legal.",
+  },
+  267438488: {
+    name: "Reporte de Evaluación de Riesgos Legales",
+    description:
+      "El Reporte de Evaluación de Riesgos Legales es un servicio de evaluación exhaustiva que identifica posibles riesgos legales en una empresa. Ayuda a las organizaciones a detectar vulnerabilidades de forma proactiva, evaluar su situación de cumplimiento y desarrollar estrategias para mitigar la exposición legal.",
+  },
+  751973037: {
+    name: "Servicio de Redacción de Manual del Empleado",
+    description:
+      "Manuales de políticas personalizados, adaptados a las leyes laborales y a la cultura de la empresa.",
+  },
+  76519426: {
+    name: "Revisión y Análisis de Contratos por Hora",
+    description:
+      "Revisión de cláusulas clave y elaboración de una estrategia previa al juicio.",
+  },
+  819581846: {
+    name: "Servicio de Reporte de Debida Diligencia",
+    description:
+      "El Servicio de Reporte de Debida Diligencia ofrece una investigación y análisis integral de una empresa, activo o transacción para evaluar sus riesgos legales, financieros y operativos. Es fundamental para inversionistas, compradores y socios que buscan tomar decisiones informadas mediante la verificación de hechos, la detección de responsabilidades y la evaluación del cumplimiento antes de cerrar acuerdos o inversiones.",
+  },
+  748100074: {
+    name: "Paquete de Registro de Propiedad Intelectual",
+    description:
+      "Cubre los procesos de registro de marcas, derechos de autor o patentes, con el respaldo legal correspondiente.",
+  },
+  308597835: {
+    name: "Acceso a un Expediente",
+    description:
+      "Se consulta el expediente del caso en el juzgado correspondiente.",
+  },
+  158175692: {
+    name: "Redacción del Preámbulo de un Documento",
+    description:
+      "Consiste en estructurar el inicio de un documento para que se desarrolle de manera más efectiva.",
+  },
+};
+
+export const legacyProductSpanish: Record<
   number,
   { name: string; description: string }
 > = {
@@ -328,7 +403,10 @@ export const serviceSpanish: Record<
 
 // dataSite.info translated (index-keyed: 0 Values, 1 Clients, 2 Specialty
 // areas, 3 Experience, 4 Object).
-export const infoSpanish: Record<number, { title: string; description: string }> = {
+export const infoSpanish: Record<
+  number,
+  { title: string; description: string }
+> = {
   0: {
     title: "Valores",
     description:

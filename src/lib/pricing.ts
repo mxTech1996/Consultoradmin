@@ -5,11 +5,8 @@
 // - Raw `price` values on dataSite.products are literal MXN amounts.
 // - Spanish shows the MXN price as-is, with the "MXN" label visible.
 // - English shows the USD equivalent (MXN / MXN_PER_USD), with "USD" visible.
-// - Unlike Homelon2/Montero, all 8 legacy products are the same kind of
-//   thing (digital legal kits/toolkits/reports/audits — no physical goods),
-//   so there is no product/additional split here; every product renders
-//   together in products-section.tsx as "Our Digital Products", matching
-//   how the legacy ProductGrid.js presented them.
+// - The legal products and services render together in products-section.tsx
+//   as one catalog group.
 // - The legacy "Save X%"/strikethrough original-price badge on each card is
 //   NOT preserved: it was a `discountPercentage = 10 + (index % 3) * 2`
 //   cosmetic calculation with no real pricing behind it, not a real
