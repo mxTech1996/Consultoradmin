@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ['cms-webserver-statics.s3.amazonaws.com'],
+    domains: ["cms-webserver-statics.s3.amazonaws.com"],
   },
 };
 

@@ -1,14 +1,12 @@
-'use client';
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-
-// Next
+"use client";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 const PageNotFound = () => {
   const navigation = useRouter();
 
   useEffect(() => {
-    navigation.push('/');
+    navigation.push("/");
   }, []);
 
   return null;
